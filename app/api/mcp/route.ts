@@ -24,18 +24,19 @@ server.setRequestHandler('tools/list', async () => {
 })
 
 // Handle tool calls
-server.setRequestHandler('tools/call', async (request: any) => {
+server.setRequestHandler('tools/call', async (request: { params: { name: string; arguments?: Record<string, unknown> } }) => {
   const { name: toolName, arguments: args } = request.params
 
   try {
     const result = await handleToolCall(toolName, args || {})
     return result
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return {
       content: [
         {
           type: 'text',
-          text: `Error: ${error.message}`,
+          text: `Error: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -62,10 +63,11 @@ export async function POST(request: NextRequest) {
         'Access-Control-Allow-Headers': 'Content-Type',
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('MCP Error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

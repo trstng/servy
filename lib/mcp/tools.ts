@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-server'
 
 export const tools = [
   {
@@ -26,7 +26,7 @@ export const tools = [
   },
 ]
 
-export async function handleToolCall(toolName: string, args: any) {
+export async function handleToolCall(toolName: string, args: Record<string, unknown>) {
   if (toolName === 'search_providers') {
     const { service_type, city, state } = args
 
@@ -78,7 +78,22 @@ export async function handleToolCall(toolName: string, args: any) {
   throw new Error(`Unknown tool: ${toolName}`)
 }
 
-function generateCarouselHTML(vendors: any[]) {
+interface VendorData {
+  id: string
+  name: string
+  service_type: string
+  city: string
+  state: string
+  rating: number
+  review_count: number
+  image_url: string
+  description: string
+  price_range: string
+  is_licensed: boolean
+  is_insured: boolean
+}
+
+function generateCarouselHTML(vendors: VendorData[]) {
   if (vendors.length === 0) {
     return `
       <!DOCTYPE html>

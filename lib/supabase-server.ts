@@ -1,9 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Client-side Supabase client (uses anon key)
-export const supabase = createClient(
+// Server-side Supabase client (uses service role key for admin operations)
+// ONLY use this on the server side (API routes, server components)
+export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 )
 
 // Database types
