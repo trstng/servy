@@ -1,36 +1,185 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Servy 🤖✨
+
+AI-powered home service booking platform. Book trusted service providers through natural ChatGPT conversations.
+
+## Features
+
+- 🤖 **ChatGPT Integration** - Book services through natural conversation via MCP
+- ✨ **Beautiful UI** - Apple-inspired design with LED blue/purple aesthetics
+- 🔒 **Verified Vendors** - All providers are licensed and insured
+- 📱 **Responsive** - Works seamlessly on desktop and mobile
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS v4
+- **Backend**: Supabase (PostgreSQL)
+- **AI Integration**: Model Context Protocol (MCP)
+- **Deployment**: Vercel
+- **Animations**: Framer Motion
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- Supabase account
+- GitHub account
+- Vercel account (for deployment)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/trstng/servy.git
+cd servy
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then edit `.env.local` with your Supabase credentials.
 
-## Learn More
+4. Run the Supabase migration:
+   - Go to your Supabase project dashboard
+   - Navigate to SQL Editor
+   - Copy and paste the contents of `supabase/migrations/001_create_vendors.sql`
+   - Run the query
 
-To learn more about Next.js, take a look at the following resources:
+5. Start the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Visit `http://localhost:3000` to see the app!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment to Vercel
 
-## Deploy on Vercel
+### Step 1: Push to GitHub
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+git add .
+git commit -m "Initial Servy setup"
+git push origin main
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Step 2: Deploy to Vercel
+
+1. Visit [vercel.com](https://vercel.com)
+2. Click "Import Project"
+3. Import your GitHub repository: `trstng/servy`
+4. Configure environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+5. Click "Deploy"
+
+Your app will be live at: `https://servy.vercel.app` (or your custom domain)
+
+### Step 3: Test with ChatGPT
+
+1. Go to ChatGPT Settings → Connectors → Developer Mode
+2. Enable Developer Mode
+3. Create new connector:
+   - **Name**: Servy
+   - **Description**: Book home service providers
+   - **URL**: `https://your-app.vercel.app/api/mcp`
+4. In a new chat, enable the Servy connector
+5. Try: "Show me power washers in Austin"
+
+## Project Structure
+
+```
+servy/
+├── app/
+│   ├── api/mcp/route.ts       # MCP server endpoint
+│   ├── signup/page.tsx         # Vendor signup page
+│   ├── page.tsx                # Homepage
+│   └── globals.css             # LED theme styles
+├── lib/
+│   ├── supabase.ts             # Supabase client
+│   └── mcp/tools.ts            # MCP tools & carousel
+├── supabase/
+│   └── migrations/             # Database schema
+└── .env.local                  # Environment variables (not in git)
+```
+
+## API Endpoints
+
+### MCP Server
+- **URL**: `/api/mcp`
+- **Protocol**: Model Context Protocol (Streamable HTTP)
+- **Tools**:
+  - `search_providers` - Search for home service vendors
+
+### Test Endpoint
+- **URL**: `/api/mcp` (GET)
+- Returns server info and available tools
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (private) |
+
+## Database Schema
+
+### Vendors Table
+- `id` - UUID primary key
+- `name` - Business name
+- `service_type` - Type of service offered
+- `city` / `state` - Location
+- `rating` - Average rating (0-5)
+- `review_count` - Number of reviews
+- `image_url` - Business image
+- `description` - Business description
+- `price_range` - $, $$, or $$$
+- `is_licensed` - Boolean
+- `is_insured` - Boolean
+
+## Development
+
+```bash
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## ChatGPT Example Prompts
+
+Try these prompts in ChatGPT after connecting Servy:
+
+- "Show me power washers in Austin"
+- "Find window cleaners in Austin, TX"
+- "Search for lawn care services in Austin"
+
+## Roadmap
+
+- [ ] User authentication
+- [ ] Booking system with calendar integration
+- [ ] Review system
+- [ ] Provider dashboard
+- [ ] Search filters (licensed, insured, price range)
+- [ ] Multi-city support
+- [ ] Payment integration
+
+## License
+
+MIT
+
+## Author
+
+Built by [@trstng](https://github.com/trstng)

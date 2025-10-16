@@ -1,8 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* LED Blue/Purple Theme */
+  --background: #0a0a0f;
+  --foreground: #f8fafc;
+
+  /* LED Blues */
+  --led-blue-light: #93c5fd;
+  --led-blue: #60a5fa;
+  --led-blue-dark: #3b82f6;
+
+  /* LED Purples */
+  --led-purple-light: #e9d5ff;
+  --led-purple: #c084fc;
+  --led-purple-dark: #a855f7;
+
+  /* Gradient */
+  --led-gradient: linear-gradient(135deg, var(--led-blue-dark), var(--led-purple-dark));
 }
 
 @theme inline {
@@ -10,17 +24,41 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Custom LED colors */
+  --color-led-blue-light: var(--led-blue-light);
+  --color-led-blue: var(--led-blue);
+  --color-led-blue-dark: var(--led-blue-dark);
+  --color-led-purple-light: var(--led-purple-light);
+  --color-led-purple: var(--led-purple);
+  --color-led-purple-dark: var(--led-purple-dark);
+
+  /* Border radius - Apple style */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Frosted glass effect utility */
+.frosted-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* LED glow effect */
+.led-glow {
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 40px rgba(168, 85, 247, 0.2);
 }
