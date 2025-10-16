@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
+import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { tools, handleToolCall } from '@/lib/mcp/tools'
 
@@ -17,14 +18,14 @@ const server = new Server(
 )
 
 // Register tools
-server.setRequestHandler('tools/list', async () => {
+server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: tools,
   }
 })
 
 // Handle tool calls
-server.setRequestHandler('tools/call', async (request: { params: { name: string; arguments?: Record<string, unknown> } }) => {
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name: toolName, arguments: args } = request.params
 
   try {
