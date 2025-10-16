@@ -45,28 +45,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 })
 
+// Create transport
+const transport = new StreamableHTTPServerTransport({
+  sessionIdGenerator: () => crypto.randomUUID(),
+})
+
+// Connect server to transport
+server.connect(transport)
+
 // POST handler for MCP protocol
 export async function POST(request: NextRequest) {
   try {
-    const transport = new StreamableHTTPServerTransport({
-      server: server,
-      sessionIdGenerator: () => crypto.randomUUID(),
-    })
+    // Parse request body
+    const body = await request.json()
 
-    // Read the request body
-    const body = await request.text()
+    // Create a mock Node.js request/response for the transport
+    // The transport expects Node.js IncomingMessage and ServerResponse
+    // We'll handle this differently by directly processing the message
 
-    // Process the request
-    const response = await transport.handleRequest(body)
+    // Send message to server
+    await transport.onmessage?.(body)
 
-    return new NextResponse(response, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('MCP Error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Internal server error'
