@@ -48,7 +48,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // POST handler for MCP protocol
 export async function POST(request: NextRequest) {
   try {
-    const transport = new StreamableHTTPServerTransport('/', server)
+    const transport = new StreamableHTTPServerTransport(server)
 
     // Read the request body
     const body = await request.text()
