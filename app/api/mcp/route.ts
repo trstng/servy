@@ -65,19 +65,19 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: Object.fromEntries(request.headers.entries()),
         url: '/mcp',
-      } as any
+      }
 
       // Create mock Node.js response with data capture
       let responseData = ''
       let statusCode = 200
       const mockRes = {
-        writeHead: (code: number, headers?: any) => {
+        writeHead: (code: number) => {
           statusCode = code
         },
-        write: (chunk: any) => {
+        write: (chunk: string) => {
           responseData += chunk
         },
-        end: (chunk?: any) => {
+        end: (chunk?: string) => {
           if (chunk) responseData += chunk
 
           resolve(new NextResponse(responseData, {
@@ -91,10 +91,11 @@ export async function POST(request: NextRequest) {
           }))
         },
         setHeader: () => {},
-      } as any
+      }
 
       // Handle the request through the transport
-      await transport.handleRequest(mockReq, mockRes, JSON.parse(body))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await transport.handleRequest(mockReq as any, mockRes as any, JSON.parse(body))
     } catch (error) {
       console.error('MCP Error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Internal server error'
