@@ -55,26 +55,55 @@ server.connect(transport)
 
 // POST handler for MCP protocol
 export async function POST(request: NextRequest) {
-  try {
-    // Parse request body
-    const body = await request.json()
+  return new Promise<NextResponse>(async (resolve) => {
+    try {
+      // Parse the body
+      const body = await request.text()
 
-    // Create a mock Node.js request/response for the transport
-    // The transport expects Node.js IncomingMessage and ServerResponse
-    // We'll handle this differently by directly processing the message
+      // Create mock Node.js request
+      const mockReq = {
+        method: 'POST',
+        headers: Object.fromEntries(request.headers.entries()),
+        url: '/mcp',
+      } as any
 
-    // Send message to server
-    await transport.onmessage?.(body)
+      // Create mock Node.js response with data capture
+      let responseData = ''
+      let statusCode = 200
+      const mockRes = {
+        writeHead: (code: number, headers?: any) => {
+          statusCode = code
+        },
+        write: (chunk: any) => {
+          responseData += chunk
+        },
+        end: (chunk?: any) => {
+          if (chunk) responseData += chunk
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('MCP Error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    )
-  }
+          resolve(new NextResponse(responseData, {
+            status: statusCode,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type',
+            },
+          }))
+        },
+        setHeader: () => {},
+      } as any
+
+      // Handle the request through the transport
+      await transport.handleRequest(mockReq, mockRes, JSON.parse(body))
+    } catch (error) {
+      console.error('MCP Error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Internal server error'
+      resolve(NextResponse.json(
+        { error: errorMessage },
+        { status: 500 }
+      ))
+    }
+  })
 }
 
 // OPTIONS handler for CORS
