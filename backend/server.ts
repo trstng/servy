@@ -166,23 +166,24 @@ app.post('/mcp', async (req, res) => {
   let transport = sessionId ? transports.get(sessionId) : undefined
 
   if (!transport) {
+    // Generate session ID upfront
+    const newSessionId = crypto.randomUUID()
+
     // Create new transport for new session
     transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => crypto.randomUUID(),
+      sessionIdGenerator: () => newSessionId,
     })
+
+    // Store transport immediately with the generated session ID
+    transports.set(newSessionId, transport)
+
+    // Clean up when session closes
+    transport.onclose = (closedSessionId) => {
+      transports.delete(closedSessionId)
+    }
 
     // Connect transport to MCP server
     await server.connect(transport)
-
-    // Store transport when session initializes
-    transport.oninitialized = (session) => {
-      transports.set(session.sessionId, transport!)
-    }
-
-    // Clean up when session closes
-    transport.onclose = (sessionId) => {
-      transports.delete(sessionId)
-    }
   }
 
   transport.handleRequest(req, res, req.body)
