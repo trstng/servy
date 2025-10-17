@@ -149,10 +149,8 @@ server.registerTool(
   }
 )
 
-// Create transport
-const transport = new StreamableHTTPServerTransport({
-  sessionIdGenerator: () => crypto.randomUUID(),
-})
+// Session management
+const transports = new Map<string, StreamableHTTPServerTransport>()
 
 // Mount MCP endpoint
 app.options('/mcp', (req, res) => {
@@ -162,15 +160,65 @@ app.options('/mcp', (req, res) => {
   res.sendStatus(200)
 })
 
-app.post('/mcp', (req, res) => {
+app.post('/mcp', async (req, res) => {
+  const sessionId = req.headers['mcp-session-id'] as string | undefined
+
+  let transport = sessionId ? transports.get(sessionId) : undefined
+
+  if (!transport) {
+    // Create new transport for new session
+    transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => crypto.randomUUID(),
+    })
+
+    // Connect transport to MCP server
+    await server.connect(transport)
+
+    // Store transport when session initializes
+    transport.oninitialized = (session) => {
+      transports.set(session.sessionId, transport!)
+    }
+
+    // Clean up when session closes
+    transport.onclose = (sessionId) => {
+      transports.delete(sessionId)
+    }
+  }
+
   transport.handleRequest(req, res, req.body)
 })
 
 app.get('/mcp', (req, res) => {
+  const sessionId = req.headers['mcp-session-id'] as string | undefined
+
+  if (!sessionId) {
+    res.status(400).json({ error: 'Mcp-Session-Id header required' })
+    return
+  }
+
+  const transport = transports.get(sessionId)
+  if (!transport) {
+    res.status(404).json({ error: 'Session not found' })
+    return
+  }
+
   transport.handleRequest(req, res)
 })
 
 app.delete('/mcp', (req, res) => {
+  const sessionId = req.headers['mcp-session-id'] as string | undefined
+
+  if (!sessionId) {
+    res.status(400).json({ error: 'Mcp-Session-Id header required' })
+    return
+  }
+
+  const transport = transports.get(sessionId)
+  if (!transport) {
+    res.status(404).json({ error: 'Session not found' })
+    return
+  }
+
   transport.handleRequest(req, res)
 })
 
@@ -186,14 +234,7 @@ app.get('/health', (req, res) => {
 
 const PORT = process.env.MCP_PORT || 3001
 
-async function start() {
-  // Connect server to transport
-  await server.connect(transport)
-
-  app.listen(PORT, () => {
-    console.log(`Servy MCP Server running on http://localhost:${PORT}`)
-    console.log(`MCP endpoint: http://localhost:${PORT}/mcp`)
-  })
-}
-
-start().catch(console.error)
+app.listen(PORT, () => {
+  console.log(`Servy MCP Server running on http://localhost:${PORT}`)
+  console.log(`MCP endpoint: http://localhost:${PORT}/mcp`)
+})
