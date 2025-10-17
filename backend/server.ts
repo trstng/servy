@@ -155,6 +155,13 @@ const transport = new StreamableHTTPServerTransport({
 })
 
 // Mount MCP endpoint
+app.options('/mcp', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Mcp-Session-Id')
+  res.sendStatus(200)
+})
+
 app.post('/mcp', (req, res) => {
   transport.handleRequest(req, res, req.body)
 })
