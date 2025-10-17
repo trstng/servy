@@ -27,20 +27,19 @@ This guide walks you through deploying Servy to production using Railway (backen
 
 ### 1.2 Configure Backend Service
 
-1. Railway will detect your project structure
-2. Click "Add variables" to set up environment variables
-3. Add the following environment variables:
+**IMPORTANT:** You must configure the Root Directory BEFORE deploying, otherwise Railway will fail with "Railpack could not determine how to build the app"
+
+1. After selecting your repository, Railway will create a service
+2. **BEFORE deploying**, go to Settings → Service Settings
+3. Set **Root Directory** to `backend` (this is CRITICAL!)
+4. Set **Start Command** to `npm start`
+5. Go to Variables tab and add environment variables:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://gwdhjrarwchjheqcurtl.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 MCP_PORT=3001
 ```
-
-4. Configure the root directory:
-   - Go to Settings → Service Settings
-   - Set **Root Directory** to `backend`
-   - Set **Start Command** to `npm start`
 
 ### 1.3 Deploy Backend
 
